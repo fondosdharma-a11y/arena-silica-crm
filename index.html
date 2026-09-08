@@ -112,6 +112,14 @@ tbody tr:last-child td{border-bottom:0}
   .print-only{display:block!important}
 }
 .print-only{display:none}
+
+.social{display:grid;gap:8px;margin-bottom:12px}
+.social button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;font:inherit;color:inherit}
+.social button:hover{background:#FBF8F3}
+.social svg{width:18px;height:18px;flex:none}
+.sep{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:0 0 12px}
+.sep::before,.sep::after{content:"";flex:1;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -120,6 +128,12 @@ tbody tr:last-child td{border-bottom:0}
   <div class="card pad">
     <div class="brand" style="margin-bottom:4px"><svg class="dot" viewBox="-95 -108 190 216" aria-hidden="true"><path d="M0,-100 L86.6,-50 L86.6,50 L0,0 Z" fill="#E9CFA4"/><path d="M86.6,50 L0,100 L-86.6,50 L0,0 Z" fill="#8C4A22"/><path d="M-86.6,50 L-86.6,-50 L0,-100 L0,0 Z" fill="#C98A3C"/><path d="M0,-44 L38.11,-22 L38.11,22 L0,44 L-38.11,22 L-38.11,-22 Z" fill="#F4E3C8"/></svg> ARENSIL</div>
     <p class="muted" style="margin:0 0 16px;font-size:13px">Arena sílica · Lagos de Moreno, Jalisco</p>
+    <div class="social" id="social">
+      <button type="button" data-prov="google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.7-5H1.2v3.1C3.2 21.3 7.3 24 12 24z"/><path fill="#FBBC05" d="M5.3 14.3c-.5-1.5-.5-3.1 0-4.6V6.6H1.2c-1.6 3.3-1.6 7.5 0 10.8l4.1-3.1z"/><path fill="#EA4335" d="M12 4.7c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.3 0 3.2 2.7 1.2 6.6l4.1 3.1c.9-2.9 3.6-5 6.7-5z"/></svg>Continuar con Google</button>
+      <button type="button" data-prov="facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12z"/></svg>Continuar con Facebook</button>
+      <button type="button" data-prov="twitter"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1C1A17" d="M18.2 2h3.4l-7.4 8.5L23 22h-6.8l-5.3-7-6.1 7H1.4l7.9-9.1L1 2h7l4.8 6.4L18.2 2zm-1.2 18h1.9L7.1 3.9H5.1L17 20z"/></svg>Continuar con X</button>
+    </div>
+    <div class="sep">o con tu correo</div>
     <div class="grid">
       <label class="f">Correo <input id="li-mail" type="email" autocomplete="username"></label>
       <label class="f">Contraseña <input id="li-pass" type="password" autocomplete="current-password"></label>
@@ -128,6 +142,7 @@ tbody tr:last-child td{border-bottom:0}
         <button class="btn ghost" id="li-up">Crear cuenta</button>
       </div>
       <p id="li-msg" class="muted" style="margin:0;font-size:12.5px"></p>
+      <p class="muted" style="margin:0;font-size:12px">Acceso solo para el equipo de administración de ARENSIL. Si eres cliente, entra en <a href="https://arensil.com/pedidos/">arensil.com/pedidos</a>.</p>
     </div>
   </div>
 </div>

@@ -1,3 +1,6 @@
+// ============================================================
+// Configuración
+// ============================================================
 const SB_URL = "https://pfsbltkdlnrkodvetfnu.supabase.co";
 const SB_KEY = "sb_publishable_D-anC38mBEtdn9mEoxLtiA_3wjan8v2";
 const EMPRESA = {
@@ -25,16 +28,33 @@ const PRES_LABEL = {granel_ton:"Granel · tonelada",saco_25kg:"Saco 25 kg",saco_
 let DB = {cuentas:[],productos:[],zonas:[],cotizaciones:[],agenda:[]};
 let QLINES = [];
 
+// ============================================================
+// Auth
+// ============================================================
 async function boot(){
+  if(location.hash && /access_token|error/.test(location.hash)) history.replaceState({},"",location.pathname);
   const {data:{session}} = await sb.auth.getSession();
   if(session){ showApp(session.user); } else { $("#login").classList.remove("hide"); }
 }
-function showApp(user){
+// Solo entran los correos dados de alta como administración (tabla correos_admin → perfiles.rol = 'admin').
+async function showApp(user){
+  const {data:perfil} = await sb.from("perfiles").select("rol,nombre,avatar_url").eq("id",user.id).single();
+  if(!perfil || perfil.rol !== "admin"){
+    await sb.auth.signOut();
+    $("#login").classList.remove("hide");
+    $("#li-msg").textContent = "Esta cuenta no es de administración. Si eres cliente, entra en arensil.com/pedidos.";
+    return;
+  }
   $("#login").classList.add("hide");
   $("#app").classList.remove("hide");
-  $("#who").textContent = user.email;
+  $("#who").textContent = (perfil.nombre ? perfil.nombre + " · " : "") + user.email;
   cargarTodo();
 }
+$$("#social [data-prov]").forEach(b => b.onclick = async () => {
+  $("#li-msg").textContent = ""; b.disabled = true;
+  const {error} = await sb.auth.signInWithOAuth({provider:b.dataset.prov, options:{redirectTo: location.origin + location.pathname}});
+  if(error){ b.disabled = false; $("#li-msg").textContent = "No pudimos conectar con ese servicio: " + error.message; }
+});
 $("#li-in").onclick = async () => {
   const {error} = await sb.auth.signInWithPassword({email:$("#li-mail").value.trim(),password:$("#li-pass").value});
   if(error){ $("#li-msg").textContent = "No se pudo entrar: " + error.message; return; }
@@ -48,6 +68,9 @@ $("#li-up").onclick = async () => {
 };
 $("#logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
+// ============================================================
+// Navegación
+// ============================================================
 $("#tabs").onclick = e => {
   const b = e.target.closest("button[data-v]"); if(!b) return;
   $$("#tabs button").forEach(x=>x.setAttribute("aria-current", x===b));
@@ -55,6 +78,9 @@ $("#tabs").onclick = e => {
   $("#v-"+b.dataset.v).classList.remove("hide");
 };
 
+// ============================================================
+// Carga
+// ============================================================
 async function cargarTodo(){
   const [cu,pr,zo,co,ag] = await Promise.all([
     sb.from("cuentas").select("*").order("prioridad").order("potencial_ton_mes",{ascending:false,nullsFirst:false}),
@@ -77,3 +103,7 @@ function llenarFiltros(){
   const ests=[...new Set(DB.cuentas.map(c=>c.estatus))];
   $("#p-est").innerHTML = '<option value="">Todos</option>' + ests.map(s=>`<option value="${s}">${EST_LABEL[s]||s}</option>`).join("");
 }
+
+// ============================================================
+// Tablero
+// ============================================================
