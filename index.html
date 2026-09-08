@@ -164,6 +164,7 @@ tbody tr:last-child td{border-bottom:0}
     <button data-v="cotizador">Cotizador</button>
     <button data-v="cotizaciones">Cotizaciones</button>
     <button data-v="catalogo">Catálogo</button>
+    <button data-v="pedidos">Pedidos</button>
     <button data-v="agenda">Agenda</button>
     <button data-v="direccion">Dirección</button>
   </nav>
@@ -287,6 +288,24 @@ tbody tr:last-child td{border-bottom:0}
     </div>
     <p class="muted" id="a-empty" style="margin-top:10px;font-size:13px"></p>
   </section>
+  <section id="v-pedidos" class="hide">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h2 style="font-size:1.05rem">Pedidos del portal</h2>
+      <label class="f" style="min-width:200px">Estatus <select id="pe-filtro"><option value="">Todos</option><option value="pendiente_pago">Esperando pago</option><option value="pagado">Pagados (por preparar)</option><option value="en_preparacion">En preparación</option><option value="en_ruta">En ruta</option><option value="entregado">Entregados</option><option value="borrador">Borradores</option><option value="cancelado">Cancelados</option></select></label>
+    </div>
+    <div class="card tblwrap">
+      <table><thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Entrega</th><th class="right">Total</th><th>Estatus</th><th>Lotes</th></tr></thead><tbody id="pe-body"></tbody></table>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin-top:8px">Abre un pedido para asignar el lote de cada partida y cambiar su estatus. El cliente ve "En ruta" y "Entregado" en su portal, y descarga el certificado del lote asignado.</p>
+
+    <div class="row" style="justify-content:space-between;align-items:center;margin:26px 0 10px">
+      <h2 style="font-size:1.05rem">Lotes de producción</h2>
+      <button class="btn sm" id="lo-nuevo">+ Nuevo lote</button>
+    </div>
+    <div class="card tblwrap">
+      <table><thead><tr><th>Código</th><th>Producto</th><th>Producción</th><th class="right">Toneladas</th><th>SiO₂ / Fe₂O₃</th><th>Análisis</th><th></th></tr></thead><tbody id="lo-body"></tbody></table>
+    </div>
+  </section>
   <section id="v-direccion" class="hide">
     <h2 style="font-size:1.05rem;margin-bottom:6px">Decisiones pendientes</h2>
     <p class="muted" style="font-size:13px;margin-bottom:12px">Lo que los agentes no pueden decidir solos. Escribe tu decisión y resuélvelo; queda en la bitácora y los agentes la leen en su siguiente corrida.</p>
@@ -323,6 +342,7 @@ tbody tr:last-child td{border-bottom:0}
 
 <script src="crm-core.js"></script>
 <script src="crm-prospectos.js"></script>
+<script src="crm-pedidos.js"></script>
 <script src="crm-agentes.js"></script>
 <script src="crm-cotizador.js"></script>
 </body>
