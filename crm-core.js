@@ -50,6 +50,15 @@ async function showApp(user){
   $("#who").textContent = (perfil.nombre ? perfil.nombre + " · " : "") + user.email;
   cargarTodo();
 }
+(async () => {
+  try {
+    const r = await fetch(SB_URL + "/auth/v1/settings", {headers:{apikey:SB_KEY}});
+    const ext = (await r.json()).external || {};
+    let activos = 0;
+    $$("#social [data-prov]").forEach(b => { const on = !!ext[b.dataset.prov]; b.classList.toggle("hide", !on); if(on) activos++; });
+    if(!activos){ $("#social").classList.add("hide"); $$(".sep").forEach(x=>x.classList.add("hide")); }
+  } catch {}
+})();
 $$("#social [data-prov]").forEach(b => b.onclick = async () => {
   $("#li-msg").textContent = ""; b.disabled = true;
   const {error} = await sb.auth.signInWithOAuth({provider:b.dataset.prov, options:{redirectTo: location.origin + location.pathname}});
