@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRM Arena Sílica · Lagos de Moreno</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#fff; --ink:#1c1a17; --muted:#6f6a62; --line:#e3ded6;
+  --accent:#b4622a; --accent-soft:#f4e9e0; --ok:#2f6b48; --warn:#a8761b; --bad:#a3392c;
+  --radius:10px; --shadow:0 1px 2px rgba(28,26,23,.06),0 8px 24px rgba(28,26,23,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#171614; --panel:#201e1b; --ink:#efece6; --muted:#a09a90; --line:#332f2a;
+  --accent:#d9834a; --accent-soft:#33261d;
+  --ok:#6bbf8f; --warn:#d9ad5a; --bad:#e0796a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+.hide{display:none!important}
+
+header.top{position:sticky;top:0;z-index:40;background:var(--panel);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  padding:10px 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.02em}
+.brand .dot{width:22px;height:22px;border-radius:6px;flex:none;
+  background:linear-gradient(140deg,#d9a05a,#b4622a 60%,#7d3f1c)}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap;margin-left:6px}
+nav.tabs button{background:none;border:0;padding:7px 12px;border-radius:7px;
+  color:var(--muted);cursor:pointer;font-weight:500}
+nav.tabs button:hover{background:var(--bg)}
+nav.tabs button[aria-current="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.spacer{flex:1}
+.who{color:var(--muted);font-size:12.5px}
+main{padding:20px;max-width:1400px;margin:0 auto}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow)}
+.pad{padding:16px}
+.grid{display:grid;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:7px;padding:8px 14px;
+  cursor:pointer;font-weight:550}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;
+  background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.tag.p1{background:#a3392c;color:#fff;border-color:transparent}
+.tag.p2{background:var(--accent);color:#fff;border-color:transparent}
+.tag.ok{color:var(--ok);border-color:currentColor}
+.tag.warn{color:var(--warn);border-color:currentColor}
+.tag.bad{color:var(--bad);border-color:currentColor}
+.muted{color:var(--muted)}
+.mono{font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto;border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:11.5px;letter-spacing:.04em;
+  text-transform:uppercase;padding:9px 12px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--panel)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:var(--bg);cursor:pointer}
+tbody tr:last-child td{border-bottom:0}
+.right{text-align:right}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .n{font-size:26px;font-weight:650;letter-spacing:-.02em;margin-top:2px}
+.kpi .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.bar{height:8px;border-radius:5px;background:var(--bg);overflow:hidden;margin-top:6px}
+.bar > i{display:block;height:100%;background:var(--accent)}
+
+.scrim{position:fixed;inset:0;background:rgba(20,18,16,.45);z-index:50}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--panel);
+  z-index:51;box-shadow:-8px 0 40px rgba(0,0,0,.2);display:flex;flex-direction:column}
+.drawer header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.drawer .body{overflow-y:auto;padding:16px 18px;flex:1}
+.sec{margin-top:18px}
+.sec h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+.act{border-left:2px solid var(--line);padding:0 0 12px 12px;position:relative}
+.act::before{content:"";position:absolute;left:-4px;top:5px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+.login{min-height:100dvh;display:grid;place-items:center;padding:20px}
+.login .card{width:min(380px,100%)}
+
+.q-line{display:grid;grid-template-columns:2.4fr .8fr .9fr .9fr 1fr auto;gap:8px;align-items:end;
+  padding:10px 0;border-bottom:1px dashed var(--line)}
+@media(max-width:820px){.q-line{grid-template-columns:1fr 1fr}}
+.totals{display:grid;gap:6px;justify-items:end;font-variant-numeric:tabular-nums}
+.totals .t{display:flex;gap:24px;justify-content:space-between;width:min(300px,100%)}
+.totals .t.big{font-size:19px;font-weight:650;border-top:1px solid var(--line);padding-top:8px}
+.alert{background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);
+  padding:8px 12px;border-radius:7px;font-size:12.5px;font-weight:550}
+
+@media print{
+  header.top,nav.tabs,.noprint{display:none!important}
+  body{background:#fff;color:#000}
+  main{padding:0;max-width:none}
+  .card{box-shadow:none;border:0}
+  .print-only{display:block!important}
+}
+.print-only{display:none}
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+  <div class="card pad">
+    <div class="brand" style="margin-bottom:4px"><span class="dot"></span> CRM Arena Sílica</div>
+    <p class="muted" style="margin:0 0 16px;font-size:13px">Lagos de Moreno, Jalisco</p>
+    <div class="grid">
+      <label class="f">Correo <input id="li-mail" type="email" autocomplete="username"></label>
+      <label class="f">Contraseña <input id="li-pass" type="password" autocomplete="current-password"></label>
+      <div class="row">
+        <button class="btn" id="li-in">Entrar</button>
+        <button class="btn ghost" id="li-up">Crear cuenta</button>
+      </div>
+      <p id="li-msg" class="muted" style="margin:0;font-size:12.5px"></p>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="hide">
+<header class="top">
+  <div class="brand"><span class="dot"></span> Arena Sílica</div>
+  <nav class="tabs" id="tabs">
+    <button data-v="tablero" aria-current="true">Tablero</button>
+    <button data-v="prospectos">Prospectos</button>
+    <button data-v="cotizador">Cotizador</button>
+    <button data-v="cotizaciones">Cotizaciones</button>
+    <button data-v="catalogo">Catálogo</button>
+    <button data-v="agenda">Agenda</button>
+  </nav>
+  <div class="spacer"></div>
+  <span class="who" id="who"></span>
+  <button class="btn ghost sm" id="logout">Salir</button>
+</header>
+
+<main>
+  <section id="v-tablero">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px" id="tab-grid">
+      <div class="card pad">
+        <h3 style="font-size:13px;margin-bottom:10px">Potencial por segmento (t/mes estimadas)</h3>
+        <div id="seg-bars"></div>
+      </div>
+      <div class="card pad">
+        <h3 style="font-size:13px;margin-bottom:10px">Prioridad 1 — atacar esta semana</h3>
+        <div id="top-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-prospectos" class="hide">
+    <div class="card pad" style="margin-bottom:14px">
+      <div class="row">
+        <label class="f" style="flex:2;min-width:200px">Buscar <input id="p-q" placeholder="empresa, municipio, giro..."></label>
+        <label class="f">Segmento <select id="p-seg"><option value="">Todos</option></select></label>
+        <label class="f">Estado <select id="p-edo"><option value="">Todos</option></select></label>
+        <label class="f">Estatus <select id="p-est"><option value="">Todos</option></select></label>
+        <label class="f">Prioridad <select id="p-pri">
+          <option value="">Todas</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select></label>
+        <button class="btn ghost sm" id="p-new" style="align-self:flex-end">+ Prospecto</button>
+      </div>
+    </div>
+    <div class="card tblwrap">
+      <table><thead><tr>
+        <th>Empresa</th><th>Segmento</th><th>Ubicación</th><th>Zona / flete</th>
+        <th class="right">t/mes</th><th>Producto</th><th>Estatus</th><th>Pri</th>
+      </tr></thead><tbody id="p-body"></tbody></table>
+    </div>
+    <p class="muted" id="p-count" style="font-size:12.5px;margin-top:8px"></p>
+  </section>
+
+  <section id="v-cotizador" class="hide">
+    <div class="grid" style="grid-template-columns:1fr">
+      <div class="card pad">
+        <h2 style="font-size:16px;margin-bottom:12px">Nueva cotización</h2>
+        <div class="row">
+          <label class="f" style="flex:2;min-width:240px">Cliente
+            <select id="q-cuenta"></select></label>
+          <label class="f">Entrega
+            <select id="q-inco">
+              <option value="entregado">Entregada en planta del cliente</option>
+              <option value="lab_mina">Recoge en mina (LAB Lagos de Moreno)</option>
+            </select></label>
+          <label class="f" style="min-width:230px">Zona de flete <select id="q-zona"></select></label>
+          <label class="f">Vigencia (días) <input id="q-vig" type="number" value="15" style="width:90px"></label>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <div class="row" style="justify-content:space-between;margin-bottom:4px">
+          <h3 style="font-size:13px">Partidas</h3>
+          <button class="btn ghost sm" id="q-add">+ Agregar producto</button>
+        </div>
+        <div id="q-lines"></div>
+        <div id="q-alert" class="alert hide" style="margin-top:12px"></div>
+        <div class="totals" style="margin-top:14px">
+          <div class="t"><span class="muted">Producto</span><span id="q-sub" class="mono">$0.00</span></div>
+          <div class="t"><span class="muted">Flete</span><span id="q-fle" class="mono">$0.00</span></div>
+          <div class="t"><span class="muted">IVA 16 %</span><span id="q-iva" class="mono">$0.00</span></div>
+          <div class="t big"><span>Total</span><span id="q-tot" class="mono">$0.00</span></div>
+          <div class="t"><span class="muted">Margen bruto estimado</span><span id="q-mar" class="mono">—</span></div>
+        </div>
+        <div class="row" style="margin-top:14px;justify-content:flex-end">
+          <button class="btn ghost" id="q-print">Vista de impresión</button>
+          <button class="btn" id="q-save">Guardar cotización</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-cotizaciones" class="hide">
+    <div class="card tblwrap">
+      <table><thead><tr>
+        <th>Folio</th><th>Cliente</th><th>Fecha</th><th>Entrega</th>
+        <th class="right">Subtotal</th><th class="right">Flete</th><th class="right">Total</th><th>Estatus</th>
+      </tr></thead><tbody id="c-body"></tbody></table>
+    </div>
+  </section>
+
+  <section id="v-catalogo" class="hide">
+    <div class="card tblwrap" style="margin-bottom:16px">
+      <table><thead><tr>
+        <th>SKU</th><th>Producto</th><th>Malla</th><th>Presentación</th>
+        <th class="right">Costo</th><th class="right">Precio lista</th><th class="right">Piso</th>
+        <th class="right">Margen</th><th>Cert.</th>
+      </tr></thead><tbody id="cat-body"></tbody></table>
+    </div>
+    <div class="card tblwrap">
+      <table><thead><tr>
+        <th>Zona</th><th>Cobertura</th><th class="right">km</th>
+        <th class="right">Costo torton</th><th class="right">Costo tráiler</th><th class="right">Precio cliente</th>
+      </tr></thead><tbody id="z-body"></tbody></table>
+    </div>
+  </section>
+
+  <section id="v-agenda" class="hide">
+    <div class="card tblwrap">
+      <table><thead><tr>
+        <th>Vence</th><th>Cliente</th><th>Tipo</th><th>Siguiente paso</th><th>Contexto</th><th></th>
+      </tr></thead><tbody id="a-body"></tbody></table>
+    </div>
+    <p class="muted" id="a-empty" style="margin-top:10px;font-size:13px"></p>
+  </section>
+</main>
+</div>
+
+<div id="scrim" class="scrim hide"></div>
+<aside id="drawer" class="drawer hide">
+  <header>
+    <div style="flex:1">
+      <h2 id="d-name" style="font-size:17px"></h2>
+      <p class="muted" id="d-sub" style="margin:3px 0 0;font-size:12.5px"></p>
+    </div>
+    <button class="btn ghost sm" id="d-close">Cerrar</button>
+  </header>
+  <div class="body" id="d-body"></div>
+</aside>
+
+<div id="printsheet" class="print-only"></div>
+
+<script>
+const SB_URL = "https://pfsbltkdlnrkodvetfnu.supabase.co";
+const SB_KEY = "sb_publishable_D-anC38mBEtdn9mEoxLtiA_3wjan8v2";
+const EMPRESA = {
+  nombre: "Arena Sílica de Los Altos",
+  lugar: "Lagos de Moreno, Jalisco",
+  contacto: "Juan Pablo",
+  tel: "322 310 2049",
+  wa: "523223102049"
+};
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const mx = n => "$" + (Number(n)||0).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const num = n => (Number(n)||0).toLocaleString("es-MX",{maximumFractionDigits:1});
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const SEG_LABEL = {construccion:"Construcción",filtracion_agua:"Filtración de agua",albercas:"Albercas",
+  fundicion:"Fundición",vidrio_ceramica:"Vidrio y cerámica",sandblast:"Sandblast",deportivo:"Deportivo",
+  pinturas:"Pinturas",distribuidor:"Distribuidor",otro:"Otro"};
+const EST_LABEL = {prospecto:"Prospecto",contactado:"Contactado",calificado:"Calificado",
+  cotizado:"Cotizado",cliente:"Cliente",inactivo:"Inactivo",descartado:"Descartado"};
+const PRES_LABEL = {granel_ton:"Granel · tonelada",saco_25kg:"Saco 25 kg",saco_50kg:"Saco 50 kg",supersaco_1t:"Súper saco 1 t"};
+
+let DB = {cuentas:[],productos:[],zonas:[],cotizaciones:[],agenda:[]};
+let QLINES = [];
+
+async function boot(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(session){ showApp(session.user); } else { $("#login").classList.remove("hide"); }
+}
+function showApp(user){
+  $("#login").classList.add("hide");
+  $("#app").classList.remove("hide");
+  $("#who").textContent = user.email;
+  cargarTodo();
+}
+$("#li-in").onclick = async () => {
+  const {error} = await sb.auth.signInWithPassword({email:$("#li-mail").value.trim(),password:$("#li-pass").value});
+  if(error){ $("#li-msg").textContent = "No se pudo entrar: " + error.message; return; }
+  const {data:{user}} = await sb.auth.getUser(); showApp(user);
+};
+$("#li-up").onclick = async () => {
+  const {data,error} = await sb.auth.signUp({email:$("#li-mail").value.trim(),password:$("#li-pass").value});
+  if(error){ $("#li-msg").textContent = "No se pudo crear: " + error.message; return; }
+  $("#li-msg").textContent = data.session ? "Listo." : "Cuenta creada. Revisa tu correo para confirmarla y luego entra.";
+  if(data.session) showApp(data.user);
+};
+$("#logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+$("#tabs").onclick = e => {
+  const b = e.target.closest("button[data-v]"); if(!b) return;
+  $$("#tabs button").forEach(x=>x.setAttribute("aria-current", x===b));
+  $$("main > section").forEach(s=>s.classList.add("hide"));
+  $("#v-"+b.dataset.v).classList.remove("hide");
+};
+
+async function cargarTodo(){
+  const [cu,pr,zo,co,ag] = await Promise.all([
+    sb.from("cuentas").select("*").order("prioridad").order("potencial_ton_mes",{ascending:false,nullsFirst:false}),
+    sb.from("productos").select("*").eq("activo",true).order("id"),
+    sb.from("zonas_flete").select("*").order("km_desde_lagos"),
+    sb.from("cotizaciones").select("*, cuentas(nombre)").order("creado_en",{ascending:false}).limit(100),
+    sb.from("v_seguimientos_pendientes").select("*")
+  ]);
+  DB.cuentas = cu.data||[]; DB.productos = pr.data||[]; DB.zonas = zo.data||[];
+  DB.cotizaciones = co.data||[]; DB.agenda = ag.data||[];
+  llenarFiltros(); pintarTablero(); pintarProspectos(); pintarCatalogo();
+  pintarCotizaciones(); pintarAgenda(); prepararCotizador();
+}
+
+function llenarFiltros(){
+  const segs=[...new Set(DB.cuentas.map(c=>c.segmento))].sort();
+  $("#p-seg").innerHTML = '<option value="">Todos</option>' + segs.map(s=>`<option value="${s}">${SEG_LABEL[s]||s}</option>`).join("");
+  const edos=[...new Set(DB.cuentas.map(c=>c.estado).filter(Boolean))].sort();
+  $("#p-edo").innerHTML = '<option value="">Todos</option>' + edos.map(s=>`<option>${esc(s)}</option>`).join("");
+  const ests=[...new Set(DB.cuentas.map(c=>c.estatus))];
+  $("#p-est").innerHTML = '<option value="">Todos</option>' + ests.map(s=>`<option value="${s}">${EST_LABEL[s]||s}</option>`).join("");
+}
+
+function pintarTablero(){
+  const act = DB.cuentas.filter(c=>c.estatus!=="descartado");
+  const clientes = act.filter(c=>c.estatus==="cliente").length;
+  const ton = act.reduce((s,c)=>s+(Number(c.potencial_ton_mes)||0),0);
+  const p1 = act.filter(c=>c.prioridad===1).length;
+  const pend = DB.agenda.filter(a=>a.dias_restantes<=0).length;
+  $("#kpis").innerHTML = [
+    ["Prospectos activos", act.length],
+    ["Prioridad 1", p1],
+    ["Clientes", clientes],
+    ["Potencial t/mes", num(ton)],
+    ["Cotizaciones", DB.cotizaciones.length],
+    ["Seguimientos vencidos", pend]
+  ].map(([l,n])=>`<div class="kpi"><div class="l">${l}</div><div class="n mono">${n}</div></div>`).join("");
+
+  const bySeg = {};
+  act.forEach(c=>{ bySeg[c.segmento]=(bySeg[c.segmento]||0)+(Number(c.potencial_ton_mes)||0); });
+  const max = Math.max(1,...Object.values(bySeg));
+  $("#seg-bars").innerHTML = Object.entries(bySeg).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`
+    <div style="margin-bottom:10px">
+      <div class="row" style="justify-content:space-between;font-size:12.5px">
+        <span>${SEG_LABEL[s]||s}</span><span class="mono muted">${num(v)} t</span></div>
+      <div class="bar"><i style="width:${v/max*100}%"></i></div>
+    </div>`).join("");
+
+  $("#top-list").innerHTML = act.filter(c=>c.prioridad===1).slice(0,10).map(c=>`
+    <div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" data-id="${c.id}">
+      <div><strong>${esc(c.nombre)}</strong><div class="muted" style="font-size:12px">${SEG_LABEL[c.segmento]} · ${esc(c.municipio||"")}</div></div>
+      <span class="mono muted">${c.potencial_ton_mes?num(c.potencial_ton_mes)+" t":""}</span>
+    </div>`).join("") || '<p class="muted">Sin prioridad 1.</p>';
+  $("#top-list").onclick = e => { const r=e.target.closest("[data-id]"); if(r) abrirCuenta(r.dataset.id); };
+}
+
+function filtrados(){
+  const q=$("#p-q").value.toLowerCase().trim(), seg=$("#p-seg").value, edo=$("#p-edo").value,
+        est=$("#p-est").value, pri=$("#p-pri").value;
+  return DB.cuentas.filter(c=>{
+    if(seg && c.segmento!==seg) return false;
+    if(edo && c.estado!==edo) return false;
+    if(est ? c.estatus!==est : c.estatus==="descartado") return false;
+    if(pri && String(c.prioridad)!==pri) return false;
+    if(q && !([c.nombre,c.municipio,c.subsegmento,c.producto_objetivo,c.estado].join(" ").toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+function pintarProspectos(){
+  const rows = filtrados();
+  const zmap = Object.fromEntries(DB.zonas.map(z=>[z.id,z]));
+  $("#p-body").innerHTML = rows.map(c=>{
+    const z = zmap[c.zona_flete_id];
+    return `<tr data-id="${c.id}">
+      <td><strong>${esc(c.nombre)}</strong><div class="muted" style="font-size:11.5px">${esc(c.subsegmento||"")}</div></td>
+      <td>${SEG_LABEL[c.segmento]||c.segmento}</td>
+      <td>${esc(c.municipio||"")}<div class="muted" style="font-size:11.5px">${esc(c.estado||"")}</div></td>
+      <td>${z?esc(z.nombre):"—"}<div class="muted mono" style="font-size:11.5px">${z?mx(z.precio_cliente_ton)+"/t":""}</div></td>
+      <td class="right mono">${c.potencial_ton_mes?num(c.potencial_ton_mes):"—"}</td>
+      <td class="mono" style="font-size:12px">${esc(c.producto_objetivo||"—")}</td>
+      <td><span class="tag">${EST_LABEL[c.estatus]}</span></td>
+      <td><span class="tag ${c.prioridad===1?"p1":c.prioridad===2?"p2":""}">${c.prioridad}</span></td>
+    </tr>`;}).join("");
+  $("#p-count").textContent = `${rows.length} de ${DB.cuentas.length} registros.`;
+}
+["p-q","p-seg","p-edo","p-est","p-pri"].forEach(id=>{
+  $("#"+id).addEventListener("input", pintarProspectos);
+});
+$("#p-body").onclick = e => { const r=e.target.closest("tr[data-id]"); if(r) abrirCuenta(r.dataset.id); };
+
+$("#p-new").onclick = async () => {
+  const nombre = prompt("Nombre de la empresa:"); if(!nombre) return;
+  const {error} = await sb.from("cuentas").insert({nombre, segmento:"otro", estatus:"prospecto", prioridad:3});
+  if(error) return alert(error.message);
+  cargarTodo();
+};
+
+let CUR = null;
+async function abrirCuenta(id){
+  CUR = DB.cuentas.find(c=>c.id===id); if(!CUR) return;
+  $("#scrim").classList.remove("hide"); $("#drawer").classList.remove("hide");
+  $("#d-name").textContent = CUR.nombre;
+  $("#d-sub").textContent = [SEG_LABEL[CUR.segmento], CUR.subsegmento, [CUR.municipio,CUR.estado].filter(Boolean).join(", ")].filter(Boolean).join(" · ");
+  $("#d-body").innerHTML = '<p class="muted">Cargando…</p>';
+  const [ct,ac] = await Promise.all([
+    sb.from("contactos").select("*").eq("cuenta_id",id),
+    sb.from("actividades").select("*").eq("cuenta_id",id).order("fecha",{ascending:false}).limit(30)
+  ]);
+  const z = DB.zonas.find(z=>z.id===CUR.zona_flete_id);
+  const tel = (CUR.telefono||"").replace(/\D/g,"");
+  $("#d-body").innerHTML = `
+    <div class="row">
+      ${tel?`<a class="btn sm" href="tel:+52${tel}">Llamar</a>
+             <a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/52${tel}?text=${encodeURIComponent(waMsg(CUR))}">WhatsApp</a>`:'<span class="muted">Sin teléfono registrado</span>'}
+      ${CUR.sitio_web?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://${CUR.sitio_web.replace(/^https?:\/\//,"")}">Sitio</a>`:""}
+      <button class="btn ghost sm" id="d-cot">Cotizar</button>
+    </div>
+
+    <div class="sec"><h3>Ficha</h3>
+      <div class="row" style="gap:14px">
+        <label class="f">Estatus <select id="d-est">${Object.entries(EST_LABEL).map(([k,v])=>`<option value="${k}" ${k===CUR.estatus?"selected":""}>${v}</option>`).join("")}</select></label>
+        <label class="f">Prioridad <select id="d-pri">${[1,2,3,4,5].map(p=>`<option ${p===CUR.prioridad?"selected":""}>${p}</option>`).join("")}</select></label>
+        <label class="f">t/mes <input id="d-ton" type="number" step="0.1" value="${CUR.potencial_ton_mes??""}" style="width:110px"></label>
+      </div>
+      <p class="muted" style="font-size:12.5px;margin:10px 0 0">
+        Zona ${z?esc(z.nombre)+" · "+z.km_desde_lagos+" km · flete "+mx(z.precio_cliente_ton)+"/t":"sin asignar"}<br>
+        Producto objetivo: <span class="mono">${esc(CUR.producto_objetivo||"—")}</span>
+      </p>
+      ${CUR.notas?`<p style="font-size:13px;margin:10px 0 0">${esc(CUR.notas)}</p>`:""}
+      ${CUR.fuente_url?`<p class="muted" style="font-size:11.5px;margin:6px 0 0"><a href="${esc(CUR.fuente_url)}" target="_blank" rel="noopener">Fuente</a></p>`:""}
+    </div>
+
+    <div class="sec"><h3>Contactos</h3>
+      ${(ct.data||[]).map(c=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)">
+        <strong>${esc(c.nombre)}</strong> <span class="muted">${esc(c.puesto||"")}</span>
+        <div class="muted mono" style="font-size:12px">${esc(c.telefono||"")} ${esc(c.email||"")}</div></div>`).join("")
+        || '<p class="muted" style="font-size:13px">Sin contactos. El primer objetivo de la llamada es conseguir el nombre del comprador.</p>'}
+      <button class="btn ghost sm" id="d-newct" style="margin-top:8px">+ Contacto</button>
+    </div>
+
+    <div class="sec"><h3>Registrar actividad</h3>
+      <div class="grid">
+        <div class="row">
+          <label class="f">Tipo <select id="d-tipo">
+            <option value="llamada">Llamada</option><option value="whatsapp">WhatsApp</option>
+            <option value="correo">Correo</option><option value="visita">Visita</option>
+            <option value="muestra">Muestra</option><option value="nota">Nota</option></select></label>
+          <label class="f" style="flex:1;min-width:150px">Siguiente contacto <input id="d-fecha" type="date"></label>
+        </div>
+        <label class="f">Qué pasó <textarea id="d-res" rows="2" placeholder="Con quién hablé, qué necesita, qué compra hoy y a quién"></textarea></label>
+        <label class="f">Siguiente paso <input id="d-next" placeholder="Enviar cotización de 20 t malla 20-30"></label>
+        <button class="btn" id="d-save">Guardar actividad</button>
+      </div>
+    </div>
+
+    <div class="sec"><h3>Historial</h3>
+      ${(ac.data||[]).map(a=>`<div class="act">
+        <div style="font-size:12px" class="muted">${new Date(a.fecha).toLocaleDateString("es-MX")} · ${a.tipo}</div>
+        <div style="font-size:13px">${esc(a.resumen)}</div>
+        ${a.siguiente_paso?`<div class="muted" style="font-size:12px">→ ${esc(a.siguiente_paso)} ${a.fecha_siguiente?"("+a.fecha_siguiente+")":""}</div>`:""}
+      </div>`).join("") || '<p class="muted" style="font-size:13px">Sin actividad registrada.</p>'}
+    </div>`;
+
+  $("#d-est").onchange = $("#d-pri").onchange = $("#d-ton").onchange = async () => {
+    await sb.from("cuentas").update({
+      estatus: $("#d-est").value, prioridad: Number($("#d-pri").value),
+      potencial_ton_mes: $("#d-ton").value===""?null:Number($("#d-ton").value)
+    }).eq("id", CUR.id);
+    cargarTodo();
+  };
+  $("#d-save").onclick = async () => {
+    if(!$("#d-res").value.trim()) return alert("Escribe qué pasó.");
+    const {error} = await sb.from("actividades").insert({
+      cuenta_id: CUR.id, tipo: $("#d-tipo").value, resumen: $("#d-res").value.trim(),
+      siguiente_paso: $("#d-next").value.trim()||null,
+      fecha_siguiente: $("#d-fecha").value||null,
+      completada: !$("#d-fecha").value
+    });
+    if(error) return alert(error.message);
+    if(CUR.estatus==="prospecto") await sb.from("cuentas").update({estatus:"contactado"}).eq("id",CUR.id);
+    abrirCuenta(CUR.id); cargarTodo();
+  };
+  $("#d-newct").onclick = async () => {
+    const nombre = prompt("Nombre del contacto:"); if(!nombre) return;
+    const puesto = prompt("Puesto (opcional):")||null;
+    const telefono = prompt("Teléfono (opcional):")||null;
+    await sb.from("contactos").insert({cuenta_id:CUR.id,nombre,puesto,telefono});
+    abrirCuenta(CUR.id);
+  };
+  $("#d-cot").onclick = () => {
+    cerrarDrawer();
+    $$("#tabs button").forEach(x=>x.setAttribute("aria-current", x.dataset.v==="cotizador"));
+    $$("main > section").forEach(s=>s.classList.add("hide"));
+    $("#v-cotizador").classList.remove("hide");
+    $("#q-cuenta").value = CUR.id; sincronizarZona();
+  };
+}
+function waMsg(c){
+  return `Buen día. Le escribe ${EMPRESA.contacto} de ${EMPRESA.nombre}, banco de arena sílica en ${EMPRESA.lugar}. `
+    + `Trabajamos con ${esc(c.subsegmento||SEG_LABEL[c.segmento]||"empresas como la suya")} y quería preguntarle quién ve la compra de arena sílica en ${c.nombre}. `
+    + `Entregamos en ${c.municipio||"su zona"} y le puedo pasar precio y ficha técnica hoy mismo.`;
+}
+function cerrarDrawer(){ $("#scrim").classList.add("hide"); $("#drawer").classList.add("hide"); }
+$("#scrim").onclick = cerrarDrawer; $("#d-close").onclick = cerrarDrawer;
+
+function pintarCatalogo(){
+  $("#cat-body").innerHTML = DB.productos.map(p=>{
+    const m = p.costo_unitario ? (p.precio_lista - p.costo_unitario)/p.precio_lista*100 : null;
+    return `<tr>
+      <td class="mono">${esc(p.sku)}</td>
+      <td>${esc(p.nombre)}<div class="muted" style="font-size:11.5px">${esc((p.ficha_tecnica||"").slice(0,90))}</div></td>
+      <td>${esc(p.malla||"—")}</td><td>${PRES_LABEL[p.presentacion]}</td>
+      <td class="right mono">${p.costo_unitario?mx(p.costo_unitario):"—"}</td>
+      <td class="right mono"><strong>${mx(p.precio_lista)}</strong></td>
+      <td class="right mono muted">${p.precio_piso?mx(p.precio_piso):"—"}</td>
+      <td class="right mono"><span class="tag ${m>=55?"ok":m>=40?"warn":"bad"}">${m?m.toFixed(0)+"%":"—"}</span></td>
+      <td>${p.requiere_certificado?'<span class="tag warn">sí</span>':""}</td>
+    </tr>`;}).join("");
+  $("#z-body").innerHTML = DB.zonas.map(z=>`<tr>
+    <td><strong>${esc(z.nombre)}</strong> <span class="muted mono">${esc(z.clave)}</span></td>
+    <td class="muted" style="font-size:12px">${esc(z.cobertura)}</td>
+    <td class="right mono">${z.km_desde_lagos}</td>
+    <td class="right mono muted">${mx(z.costo_torton_ton)}</td>
+    <td class="right mono muted">${mx(z.costo_trailer_ton)}</td>
+    <td class="right mono"><strong>${mx(z.precio_cliente_ton)}</strong></td>
+  </tr>`).join("");
+}
+
+function prepararCotizador(){
+  const sel = $("#q-cuenta"), prev = sel.value;
+  sel.innerHTML = DB.cuentas.filter(c=>c.estatus!=="descartado")
+    .map(c=>`<option value="${c.id}">${esc(c.nombre)} — ${esc(c.municipio||"")}</option>`).join("");
+  $("#q-zona").innerHTML = DB.zonas.map(z=>`<option value="${z.id}">${esc(z.nombre)} · ${z.km_desde_lagos} km · ${mx(z.precio_cliente_ton)}/t</option>`).join("");
+  if(prev) sel.value = prev;
+  sincronizarZona();
+  if(!QLINES.length) addLine();
+}
+function sincronizarZona(){
+  const c = DB.cuentas.find(x=>x.id===$("#q-cuenta").value);
+  if(c?.zona_flete_id) $("#q-zona").value = c.zona_flete_id;
+  render();
+}
+$("#q-cuenta").onchange = sincronizarZona;
+$("#q-zona").onchange = render;
+$("#q-inco").onchange = render;
+$("#q-add").onclick = () => { addLine(); };
+
+function addLine(){
+  QLINES.push({producto_id: DB.productos[0]?.id, cantidad: 1, precio: DB.productos[0]?.precio_lista||0});
+  render();
+}
+function fleteTon(){
+  if($("#q-inco").value==="lab_mina") return 0;
+  const z = DB.zonas.find(z=>z.id===Number($("#q-zona").value));
+  return z ? Number(z.precio_cliente_ton) : 0;
+}
+function render(){
+  const zf = fleteTon();
+  $("#q-lines").innerHTML = QLINES.map((l,i)=>{
+    const p = DB.productos.find(p=>p.id===Number(l.producto_id));
+    const fl = p ? zf * (Number(p.kg_por_unidad)/1000) : 0;
+    const imp = (Number(l.cantidad)||0) * ((Number(l.precio)||0) + fl);
+    return `<div class="q-line" data-i="${i}">
+      <label class="f">Producto <select data-k="producto_id">${DB.productos.map(p2=>
+        `<option value="${p2.id}" ${p2.id===Number(l.producto_id)?"selected":""}>${esc(p2.sku)} — ${esc(p2.nombre)}</option>`).join("")}</select></label>
+      <label class="f">Cantidad <input type="number" step="0.01" min="0.01" data-k="cantidad" value="${l.cantidad}"></label>
+      <label class="f">Precio unit. <input type="number" step="1" data-k="precio" value="${l.precio}"></label>
+      <label class="f">Flete unit. <input value="${mx(fl)}" disabled></label>
+      <label class="f">Importe <input value="${mx(imp)}" disabled></label>
+      <button class="btn ghost sm" data-del="${i}" style="margin-bottom:2px">×</button>
+    </div>`;}).join("");
+
+  $$("#q-lines [data-k]").forEach(el=>{
+    el.onchange = e => {
+      const i = Number(e.target.closest("[data-i]").dataset.i), k = e.target.dataset.k;
+      QLINES[i][k] = e.target.value;
+      if(k==="producto_id"){
+        const p = DB.productos.find(p=>p.id===Number(e.target.value));
+        QLINES[i].precio = p?.precio_lista||0;
+      }
+      render();
+    };
+  });
+  $$("#q-lines [data-del]").forEach(b=>b.onclick=()=>{QLINES.splice(Number(b.dataset.del),1);render();});
+
+  let sub=0, fle=0, costo=0, avisos=[];
+  QLINES.forEach(l=>{
+    const p = DB.productos.find(p=>p.id===Number(l.producto_id)); if(!p) return;
+    const q = Number(l.cantidad)||0, pu = Number(l.precio)||0;
+    sub += q*pu; fle += q*zf*(Number(p.kg_por_unidad)/1000);
+    costo += q*(Number(p.costo_unitario)||0);
+    if(p.precio_piso && pu < Number(p.precio_piso))
+      avisos.push(`${p.sku} está en ${mx(pu)}, por debajo del piso autorizado de ${mx(p.precio_piso)}.`);
+    if(p.requiere_certificado)
+      avisos.push(`${p.sku} exige certificado de laboratorio por lote antes de entregar.`);
+  });
+  $("#q-sub").textContent = mx(sub); $("#q-fle").textContent = mx(fle);
+  $("#q-iva").textContent = mx((sub+fle)*.16); $("#q-tot").textContent = mx((sub+fle)*1.16);
+  const mar = sub? (sub-costo)/sub*100 : 0;
+  $("#q-mar").innerHTML = sub? `<span class="tag ${mar>=55?"ok":mar>=40?"warn":"bad"}">${mar.toFixed(0)} % · ${mx(sub-costo)}</span>` : "—";
+  const al = $("#q-alert");
+  if(avisos.length){ al.classList.remove("hide"); al.innerHTML = [...new Set(avisos)].join("<br>"); }
+  else al.classList.add("hide");
+}
+
+$("#q-save").onclick = async () => {
+  const cuenta_id = $("#q-cuenta").value;
+  if(!cuenta_id || !QLINES.length) return alert("Elige cliente y agrega al menos una partida.");
+  const {data:cot, error} = await sb.from("cotizaciones").insert({
+    cuenta_id, incoterm: $("#q-inco").value,
+    zona_flete_id: $("#q-inco").value==="lab_mina" ? null : Number($("#q-zona").value),
+    vigencia_dias: Number($("#q-vig").value)||15
+  }).select().single();
+  if(error) return alert(error.message);
+  const zf = fleteTon();
+  const partidas = QLINES.map((l,i)=>{
+    const p = DB.productos.find(p=>p.id===Number(l.producto_id));
+    return {cotizacion_id: cot.id, producto_id: p.id,
+      descripcion: `${p.nombre}${p.malla?" · "+p.malla:""} · ${PRES_LABEL[p.presentacion]}`,
+      cantidad: Number(l.cantidad), unidad: p.unidad,
+      precio_unitario: Number(l.precio), flete_unitario: zf*(Number(p.kg_por_unidad)/1000), orden:i+1};
+  });
+  const {error:e2} = await sb.from("cotizacion_partidas").insert(partidas);
+  if(e2) return alert(e2.message);
+  await sb.from("cuentas").update({estatus:"cotizado"}).eq("id",cuenta_id);
+  alert("Cotización " + cot.folio + " guardada.");
+  QLINES = []; addLine(); cargarTodo();
+};
+
+$("#q-print").onclick = () => {
+  const c = DB.cuentas.find(x=>x.id===$("#q-cuenta").value);
+  const zf = fleteTon(), z = DB.zonas.find(z=>z.id===Number($("#q-zona").value));
+  let sub=0, fle=0;
+  const rows = QLINES.map(l=>{
+    const p = DB.productos.find(p=>p.id===Number(l.producto_id)); if(!p) return "";
+    const q=Number(l.cantidad)||0, pu=Number(l.precio)||0, f=zf*(Number(p.kg_por_unidad)/1000);
+    sub+=q*pu; fle+=q*f;
+    return `<tr><td>${esc(p.nombre)}${p.malla?" · "+esc(p.malla):""}<br><span style="font-size:11px;color:#666">${esc(p.sku)} · ${PRES_LABEL[p.presentacion]}</span></td>
+      <td class="right">${num(q)} ${esc(p.unidad)}</td><td class="right">${mx(pu)}</td>
+      <td class="right">${mx(f)}</td><td class="right">${mx(q*(pu+f))}</td></tr>`;
+  }).join("");
+  $("#printsheet").innerHTML = `
+    <div style="font-family:ui-sans-serif,system-ui;padding:32px;max-width:760px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #b4622a;padding-bottom:14px">
+        <div><h1 style="font-size:20px;margin:0">${EMPRESA.nombre}</h1>
+          <p style="margin:4px 0 0;font-size:12px;color:#555">Banco de arena sílica · ${EMPRESA.lugar}<br>
+          ${EMPRESA.contacto} · Tel. y WhatsApp ${EMPRESA.tel}</p></div>
+        <div style="text-align:right;font-size:12px">
+          <strong style="font-size:15px">COTIZACIÓN</strong><br>
+          ${new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"})}<br>
+          Vigencia: ${$("#q-vig").value} días</div>
+      </div>
+      <p style="font-size:13px;margin:16px 0 4px"><strong>Para:</strong> ${esc(c?.nombre||"")} — ${esc(c?.municipio||"")}, ${esc(c?.estado||"")}</p>
+      <p style="font-size:12px;color:#555;margin:0 0 14px">
+        Entrega: ${$("#q-inco").value==="lab_mina"
+          ? "Carga en mina, Lagos de Moreno. El cliente pone la unidad."
+          : "Entregada en planta del cliente · "+esc(z?.nombre||"")+" · "+(z?.km_desde_lagos||0)+" km"}<br>
+        Tiempo de entrega: 48 a 72 horas hábiles a partir de la confirmación.<br>
+        Condiciones: contado contra entrega. Crédito sujeto a autorización.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="background:#f4e9e0">
+          <th style="text-align:left;padding:7px">Producto</th><th style="text-align:right;padding:7px">Cantidad</th>
+          <th style="text-align:right;padding:7px">Precio</th><th style="text-align:right;padding:7px">Flete</th>
+          <th style="text-align:right;padding:7px">Importe</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      <div style="margin-top:14px;text-align:right;font-size:13px">
+        <div>Producto: <strong>${mx(sub)}</strong></div>
+        <div>Flete: <strong>${mx(fle)}</strong></div>
+        <div>IVA 16 %: <strong>${mx((sub+fle)*.16)}</strong></div>
+        <div style="font-size:17px;border-top:1px solid #ccc;margin-top:6px;padding-top:6px">
+          Total: <strong>${mx((sub+fle)*1.16)}</strong></div>
+      </div>
+      <p style="font-size:11px;color:#666;margin-top:22px;border-top:1px solid #ddd;padding-top:10px">
+        Precios en pesos mexicanos. Cada entrega se acompaña de remisión con número de lote.
+        Análisis de laboratorio disponible bajo solicitud para los grados que lo requieren.</p>
+    </div>`;
+  $("#printsheet").style.display="block";
+  window.print();
+  setTimeout(()=>{$("#printsheet").style.display="none";},500);
+};
+
+function pintarCotizaciones(){
+  $("#c-body").innerHTML = DB.cotizaciones.map(c=>`<tr>
+    <td class="mono"><strong>${esc(c.folio)}</strong></td>
+    <td>${esc(c.cuentas?.nombre||"")}</td>
+    <td class="mono">${c.fecha}</td>
+    <td>${c.incoterm==="lab_mina"?"Recoge en mina":"Entregada"}</td>
+    <td class="right mono">${mx(c.subtotal)}</td>
+    <td class="right mono">${mx(c.flete_total)}</td>
+    <td class="right mono"><strong>${mx(c.total)}</strong></td>
+    <td><span class="tag">${c.estatus}</span></td>
+  </tr>`).join("") || '<tr><td colspan="8" class="muted">Todavía no hay cotizaciones.</td></tr>';
+}
+function pintarAgenda(){
+  $("#a-body").innerHTML = DB.agenda.map(a=>{
+    const d = a.dias_restantes;
+    const cls = d<0?"bad":d<=2?"warn":"ok";
+    const tel = (a.telefono||"").replace(/\D/g,"");
+    return `<tr>
+      <td><span class="tag ${cls}">${a.fecha_siguiente}</span><div class="muted" style="font-size:11.5px">${d<0?Math.abs(d)+" días tarde":d===0?"hoy":"en "+d+" días"}</div></td>
+      <td>${esc(a.cuenta)}</td><td>${a.tipo}</td>
+      <td>${esc(a.siguiente_paso||"")}</td>
+      <td class="muted" style="font-size:12px">${esc((a.resumen||"").slice(0,80))}</td>
+      <td>${tel?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/52${tel}">WhatsApp</a>`:""}</td>
+    </tr>`;}).join("");
+  $("#a-empty").textContent = DB.agenda.length ? "" : "No hay seguimientos programados. Al registrar una actividad, pon fecha de siguiente contacto para que aparezca aquí.";
+}
+
+boot();
+</script>
+</body>
+</html>
