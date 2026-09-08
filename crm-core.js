@@ -70,7 +70,7 @@ $("#li-in").onclick = async () => {
   const {data:{user}} = await sb.auth.getUser(); showApp(user);
 };
 $("#li-up").onclick = async () => {
-  const {data,error} = await sb.auth.signUp({email:$("#li-mail").value.trim(),password:$("#li-pass").value});
+  const {data,error} = await sb.auth.signUp({email:$("#li-mail").value.trim(),password:$("#li-pass").value, options:{emailRedirectTo: location.origin + location.pathname}});
   if(error){ $("#li-msg").textContent = "No se pudo crear: " + error.message; return; }
   $("#li-msg").textContent = data.session ? "Listo." : "Cuenta creada. Revisa tu correo para confirmarla y luego entra.";
   if(data.session) showApp(data.user);
