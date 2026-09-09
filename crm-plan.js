@@ -85,3 +85,37 @@ function registrarToque(cuentaId, ids, nombre){
 }
 
 $("#tabs").addEventListener("click", e => { if(e.target.closest('button[data-v="tablero"]')) cargarPlanHoy(); });
+// ============================================================
+// Solicitudes de cotización que llegan del sitio (sin registro)
+// ============================================================
+async function cargarSolicitudes(){
+  const cont = $("#sol-lista"); if(!cont) return;
+  const {data, error} = await sb.from("solicitudes_web").select("*").eq("atendida", false).order("creado_en", {ascending:false}).limit(30);
+  if(error){ cont.innerHTML = `<p class="muted" style="font-size:13px">${esc(error.message)}</p>`; return; }
+  const rows = data||[];
+  $("#sol-n").textContent = rows.length ? `${rows.length} sin atender` : "";
+  if(!rows.length){ cont.innerHTML = '<p class="muted" style="font-size:13px">Sin solicitudes nuevas. Llegan desde el cotizador de arensil.com cuando alguien pide cotización formal sin registrarse.</p>'; return; }
+  cont.innerHTML = rows.map(s => {
+    const tel = (s.telefono||"").replace(/\D/g,""); const tel52 = tel.length===10 ? "52"+tel : tel;
+    const hace = Math.round((Date.now()-new Date(s.creado_en))/36e5);
+    return `<div class="card pad" style="margin-bottom:8px;border-left:4px solid var(--warn,#a8761b)">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
+        <div><strong>${esc(s.nombre)}</strong>${s.empresa?` · ${esc(s.empresa)}`:""} <span class="muted" style="font-size:12px">· hace ${hace<1?"menos de 1 h":hace+" h"}</span>
+          <div style="font-size:13px;margin-top:3px">${esc([s.cantidad, s.producto].filter(Boolean).join(" de "))}${s.municipio?` · entrega en ${esc(s.municipio)}`:""}</div>
+          ${s.mensaje?`<div class="muted" style="font-size:12.5px;margin-top:3px">“${esc(s.mensaje)}”</div>`:""}
+          <div class="muted" style="font-size:12px;margin-top:4px">${tel?`<a href="tel:+${tel52}">${esc(s.telefono)}</a>`:""}${s.email?` · ${esc(s.email)}`:""}</div></div>
+        <div class="row" style="gap:6px">
+          ${tel?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${tel52}?text=${encodeURIComponent(`Hola ${s.nombre}, le escribe Juan Pablo de ARENSIL (arena sílica, Lagos de Moreno). Recibí su solicitud de ${[s.cantidad,s.producto].filter(Boolean).join(" de ")}. Le paso precio y ficha técnica:`)}">WhatsApp</a>`:""}
+          <button class="btn sm" data-conv="${s.id}">Convertir en prospecto</button>
+        </div>
+      </div></div>`;
+  }).join("");
+  $$("#sol-lista [data-conv]").forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    const {data:cta, error} = await sb.rpc("convertir_solicitud", {p_id: b.dataset.conv});
+    if(error){ b.disabled=false; return alert(error.message); }
+    await cargarTodo(); cargarSolicitudes();
+    if(cta) abrirCuenta(cta);
+  });
+}
+$("#tabs").addEventListener("click", e => { if(e.target.closest('button[data-v="tablero"]')) cargarSolicitudes(); });
