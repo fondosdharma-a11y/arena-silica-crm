@@ -102,6 +102,7 @@ async function cargarTodo(){
   DB.cotizaciones = co.data||[]; DB.agenda = ag.data||[];
   llenarFiltros(); pintarTablero(); pintarProspectos(); pintarCatalogo();
   pintarCotizaciones(); pintarAgenda(); prepararCotizador();
+  if(typeof cargarPlanHoy === "function") cargarPlanHoy();
 }
 
 function llenarFiltros(){

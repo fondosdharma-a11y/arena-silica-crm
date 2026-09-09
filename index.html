@@ -177,6 +177,13 @@ tbody tr:last-child td{border-bottom:0}
   <!-- TABLERO -->
   <section id="v-tablero">
     <div class="kpis" id="kpis"></div>
+    <div class="card pad" style="margin-top:16px">
+      <div class="row" style="justify-content:space-between;align-items:baseline">
+        <h3 style="font-size:13px;margin-bottom:4px">Plan de hoy <span class="muted" id="plan-n"></span></h3>
+        <span class="muted" style="font-size:12px">Lo prepara el agente comercial cada mañana. Abre el guion, llama o manda el WhatsApp, y registra el toque.</span>
+      </div>
+      <div id="plan-hoy" style="margin-top:8px"></div>
+    </div>
     <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px" id="tab-grid">
       <div class="card pad">
         <h3 style="font-size:13px;margin-bottom:10px">Potencial por segmento (t/mes estimadas)</h3>
@@ -349,6 +356,7 @@ tbody tr:last-child td{border-bottom:0}
 <script src="crm-prospectos.js"></script>
 <script src="crm-pedidos.js"></script>
 <script src="crm-agentes.js"></script>
+<script src="crm-plan.js"></script>
 <script src="crm-cotizador.js"></script>
 </body>
 </html>
