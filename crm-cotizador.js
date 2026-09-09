@@ -186,9 +186,16 @@ function pintarCotizaciones(){
     <td class="right mono">${mx(c.subtotal)}</td>
     <td class="right mono">${mx(c.flete_total)}</td>
     <td class="right mono"><strong>${mx(c.total)}</strong></td>
-    <td><span class="tag">${c.estatus}</span></td>
+    <td><select data-cot-est="${c.id}" style="font-size:12px">${["borrador","enviada","aceptada","rechazada","vencida"].map(e=>`<option value="${e}"${e===c.estatus?" selected":""}>${COT_EST_LABEL[e]}</option>`).join("")}</select></td>
   </tr>`).join("") || '<tr><td colspan="8" class="muted">Todavía no hay cotizaciones.</td></tr>';
+  $$("#c-body [data-cot-est]").forEach(sel => sel.onchange = async () => {
+    const {error} = await sb.from("cotizaciones").update({estatus: sel.value, actualizado_en: new Date().toISOString()}).eq("id", sel.dataset.cotEst);
+    if(error) return alert(error.message);
+    const c = DB.cotizaciones.find(x=>x.id===sel.dataset.cotEst); if(c) c.estatus = sel.value;
+  });
 }
+// "Enviada" es la que el cliente ve en su portal (arensil.com/pedidos → Cotizaciones) y puede aceptar: se vuelve pedido con los precios cotizados.
+const COT_EST_LABEL = {borrador:"Borrador (interna)", enviada:"Enviada · visible al cliente", aceptada:"Aceptada", rechazada:"Rechazada", vencida:"Vencida"};
 function pintarAgenda(){
   $("#a-body").innerHTML = DB.agenda.map(a=>{
     const d = a.dias_restantes;
