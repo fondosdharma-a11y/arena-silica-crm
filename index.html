@@ -311,6 +311,10 @@ tbody tr:last-child td{border-bottom:0}
     <p class="muted" style="font-size:13px;margin-bottom:12px">Lo que los agentes no pueden decidir solos. Escribe tu decisión y resuélvelo; queda en la bitácora y los agentes la leen en su siguiente corrida.</p>
     <div id="esc-lista"></div>
 
+    <h2 style="font-size:1.05rem;margin:26px 0 10px">Datos de pago que ve el cliente</h2>
+    <p class="muted" style="font-size:13px;margin-bottom:10px">Mientras Stripe no esté activo, los pedidos se cobran por transferencia. Con la CLABE capturada, el portal muestra los datos y el folio como referencia; sin ella, solo dice que se los enviaremos.</p>
+    <div class="card pad" id="cfg-card"><div id="cfg-grid" class="grid"></div><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sm" id="cfg-save">Guardar datos de pago</button></div><div id="cfg-msg"></div></div>
+
     <h2 style="font-size:1.05rem;margin:26px 0 10px">Cumplimiento y vencimientos</h2>
     <div class="card tblwrap">
       <table><thead><tr><th>Concepto</th><th>Vence</th><th>Estatus</th><th></th><th></th></tr></thead><tbody id="cum-body"></tbody></table>

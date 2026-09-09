@@ -6,14 +6,16 @@ const AG_LABEL = {director:"Director", comercial:"Comercial", operacion:"Operaci
 const TIPO_LABEL = {accion:"Acción", decision:"Decisión", escalamiento:"Escalamiento", reporte:"Reporte", alerta:"Alerta", borrador:"Borrador"};
 
 async function cargarDireccion(){
-  const [esc, bit, cum] = await Promise.all([
+  const [esc, bit, cum, cfg] = await Promise.all([
     sb.from("agentes_bitacora").select("*").eq("escalado", true).eq("resuelto", false).order("creado_en", {ascending:false}),
     sb.from("agentes_bitacora").select("id,agente,tipo,resumen,detalle,referencia,creado_en").order("creado_en", {ascending:false}).limit(80),
-    sb.from("cumplimiento_vencimientos").select("*").order("id")
+    sb.from("cumplimiento_vencimientos").select("*").order("id"),
+    sb.from("config_publica").select("*").order("clave")
   ]);
   pintarEscalamientos(esc.data||[]);
   pintarBitacora(bit.data||[]);
   pintarCumplimiento(cum.data||[]);
+  pintarConfig(cfg.data||[]);
   const n = (esc.data||[]).length;
   const tab = $('#tabs button[data-v="direccion"]');
   tab.textContent = n ? `Dirección (${n})` : "Dirección";
@@ -64,6 +66,24 @@ function pintarBitacora(rows){
       <td>${esc(r.resumen)}${r.referencia?` <span class="muted">· ${esc(r.referencia)}</span>`:""}${texto}</td>
     </tr>`;
   }).join("");
+}
+
+function pintarConfig(rows){
+  const orden = ["pago_beneficiario","pago_banco","pago_clabe","pago_instrucciones","whatsapp"];
+  rows.sort((a,b)=>orden.indexOf(a.clave)-orden.indexOf(b.clave));
+  $("#cfg-grid").innerHTML = rows.map(r => `<label class="f">${esc(r.etiqueta||r.clave)}<input data-cfg="${esc(r.clave)}" value="${esc(r.valor||"")}"${r.clave==="pago_clabe"?' inputmode="numeric" maxlength="18"':""}></label>`).join("");
+  $("#cfg-save").onclick = async () => {
+    const clabe = ($('[data-cfg="pago_clabe"]')?.value||"").trim();
+    if(clabe && !/^\d{18}$/.test(clabe)) return $("#cfg-msg").innerHTML = '<p style="color:var(--bad);font-size:13px">La CLABE debe tener 18 dígitos.</p>';
+    $("#cfg-save").disabled = true;
+    const errores = [];
+    for (const inp of $$("#cfg-grid [data-cfg]")) {
+      const {error} = await sb.from("config_publica").update({valor: inp.value.trim() || null, actualizado_en: new Date().toISOString()}).eq("clave", inp.dataset.cfg);
+      if(error) errores.push(error.message);
+    }
+    $("#cfg-save").disabled = false;
+    $("#cfg-msg").innerHTML = errores.length ? `<p style="color:var(--bad);font-size:13px">${esc(errores.join(" · "))}</p>` : '<p style="color:var(--ok,#2a7);font-size:13px">Guardado. El portal ya lo muestra a los clientes.</p>';
+  };
 }
 
 function pintarCumplimiento(rows){
