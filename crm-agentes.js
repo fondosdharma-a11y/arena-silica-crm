@@ -2,7 +2,7 @@
 // Dirección: escalamientos de los agentes, bitácora y cumplimiento
 // ============================================================
 const AG_LABEL = {director:"Director", comercial:"Comercial", operacion:"Operación", calidad:"Calidad",
-  inteligencia:"Inteligencia", marketing:"Marketing", cumplimiento:"Cumplimiento"};
+  inteligencia:"Inteligencia", marketing:"Marketing", cumplimiento:"Cumplimiento", sistema:"Sistema", jp:"JP"};
 const TIPO_LABEL = {accion:"Acción", decision:"Decisión", escalamiento:"Escalamiento", reporte:"Reporte", alerta:"Alerta", borrador:"Borrador"};
 
 async function cargarDireccion(){

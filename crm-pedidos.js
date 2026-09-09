@@ -170,6 +170,6 @@ function formLote(l){
 $("#tabs").addEventListener("click", e => { if(e.target.closest('button[data-v="pedidos"]')) cargarPedidosCRM(); });
 sb.auth.getSession().then(({data:{session}}) => {
   if(!session) return;
-  sb.from("pedidos").select("id",{count:"exact",head:true}).eq("estatus","pagado")
+  sb.from("pedidos").select("id",{count:"exact",head:true}).in("estatus",["pendiente_pago","pagado"])
     .then(({count}) => { if(count) $('#tabs button[data-v="pedidos"]').textContent = `Pedidos (${count})`; });
 });
