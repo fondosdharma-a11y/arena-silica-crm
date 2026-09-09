@@ -19,7 +19,7 @@ async function cargarPlanHoy(){
     const cta = DB.cuentas.find(x=>x.id===c.cuenta_id);
     const items = c.items.map(r => {
       const d=r.detalle||{}; const wa = d.canal==="whatsapp";
-      const btnWa = wa && tel ? `<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${tel52}?text=${encodeURIComponent((d.texto||"").replace(/\[nombre\]/g, c.contacto||""))}">Abrir WhatsApp</a>` : "";
+      const btnWa = wa && tel ? `<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${tel52}?text=${encodeURIComponent((c.contacto ? (d.texto||"").replace(/\[nombre\]/g, c.contacto) : (d.texto||"")))}">Abrir WhatsApp</a>` : "";
       return `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:13px"><strong>${esc(r.resumen.replace(" · "+c.nombre,""))}</strong> <span class="muted">· ${d.canal||""}</span>${d.nota?` <span class="muted" style="font-size:11.5px">— ${esc(d.nota)}</span>`:""}</summary>
         <pre style="white-space:pre-wrap;font:inherit;font-size:12.5px;margin:6px 0;background:var(--accent-soft,#f4e9e0);padding:8px;border-radius:6px">${esc(d.texto||"")}</pre>
         <div class="row" style="gap:6px">${btnWa}<button class="btn ghost sm" data-copy="${r.id}">Copiar texto</button></div>
