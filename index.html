@@ -166,6 +166,7 @@ tbody tr:last-child td{border-bottom:0}
     <button data-v="catalogo">Catálogo</button>
     <button data-v="pedidos">Pedidos</button>
     <button data-v="agenda">Agenda</button>
+    <button data-v="chat">Chat</button>
     <button data-v="direccion">Dirección</button>
   </nav>
   <div class="spacer"></div>
@@ -321,6 +322,32 @@ tbody tr:last-child td{border-bottom:0}
       <table><thead><tr><th>Código</th><th>Producto</th><th>Producción</th><th class="right">Toneladas</th><th>SiO₂ / Fe₂O₃</th><th>Análisis</th><th></th></tr></thead><tbody id="lo-body"></tbody></table>
     </div>
   </section>
+  <section id="v-chat" class="hide">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 style="font-size:1.05rem">Chat del sitio <span class="muted" id="ch-n" style="font-size:12.5px;font-weight:400"></span></h2>
+      <div class="row" style="gap:8px">
+        <label class="f" style="min-width:190px">Ver <select id="ch-filtro">
+          <option value="todas">Todas</option>
+          <option value="escaladas">Dejaron datos, sin atender</option>
+          <option value="sin_atender">Sin atender</option>
+        </select></label>
+      </div>
+    </div>
+    <div class="card pad" id="ch-cfg" style="margin-bottom:12px"></div>
+    <div class="row" style="align-items:flex-start;gap:14px;flex-wrap:wrap">
+      <div style="flex:0 0 300px;max-width:100%"><div id="ch-lista"></div></div>
+      <div style="flex:1;min-width:280px"><div id="ch-detalle"></div></div>
+    </div>
+
+    <div class="row" style="justify-content:space-between;align-items:center;margin:26px 0 8px">
+      <h2 style="font-size:1.05rem">Lo que sabe el asistente</h2>
+      <div class="row" style="gap:8px"><span class="muted" id="ch-kb-msg" style="font-size:12px"></span><button class="btn sm" id="ch-kb-nuevo">+ Nueva respuesta</button></div>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin-bottom:10px">Se guarda solo al escribir. El asistente responde con esto y con el catálogo; nunca inventa precios ni promete certificados. Lo que aquí escribas es lo que le dice al cliente.</p>
+    <div class="card tblwrap">
+      <table><thead><tr><th style="width:90px">Tema</th><th style="width:22%">Pregunta</th><th>Respuesta</th><th style="width:18%">Palabras clave</th><th class="right" style="width:80px"></th></tr></thead><tbody id="ch-kb"></tbody></table>
+    </div>
+  </section>
   <section id="v-direccion" class="hide">
     <h2 style="font-size:1.05rem;margin-bottom:6px">Decisiones pendientes</h2>
     <p class="muted" style="font-size:13px;margin-bottom:12px">Lo que los agentes no pueden decidir solos. Escribe tu decisión y resuélvelo; queda en la bitácora y los agentes la leen en su siguiente corrida.</p>
@@ -364,6 +391,7 @@ tbody tr:last-child td{border-bottom:0}
 <script src="crm-pedidos.js"></script>
 <script src="crm-agentes.js"></script>
 <script src="crm-plan.js"></script>
+<script src="crm-chat.js"></script>
 <script src="crm-cotizador.js"></script>
 </body>
 </html>
