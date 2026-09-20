@@ -50,14 +50,19 @@ async function showApp(user){
   $("#who").textContent = (perfil.nombre ? perfil.nombre + " · " : "") + user.email;
   cargarTodo();
 }
+const ocultarSociales = () => { $("#social")?.classList.add("hide"); $$(".sep").forEach(x=>x.classList.add("hide")); };
+ocultarSociales();
 (async () => {
   try {
-    const r = await fetch(SB_URL + "/auth/v1/settings", {headers:{apikey:SB_KEY}});
+    const ctrl = new AbortController(); const corta = setTimeout(()=>ctrl.abort(), 7000);
+    const r = await fetch(SB_URL + "/auth/v1/settings", {headers:{apikey:SB_KEY}, signal: ctrl.signal});
+    clearTimeout(corta);
     const ext = (await r.json()).external || {};
     let activos = 0;
     $$("#social [data-prov]").forEach(b => { const on = !!ext[b.dataset.prov]; b.classList.toggle("hide", !on); if(on) activos++; });
-    if(!activos){ $("#social").classList.add("hide"); $$(".sep").forEach(x=>x.classList.add("hide")); }
-  } catch {}
+    if(activos){ $("#social").classList.remove("hide"); $$(".sep").forEach(x=>x.classList.remove("hide")); }
+    else ocultarSociales();
+  } catch { ocultarSociales(); $("#li-msg").textContent = "La base de datos no está respondiendo. Si el proyecto de Supabase está pausado, reanúdalo en supabase.com y vuelve a entrar."; }
 })();
 $$("#social [data-prov]").forEach(b => b.onclick = async () => {
   $("#li-msg").textContent = ""; b.disabled = true;
