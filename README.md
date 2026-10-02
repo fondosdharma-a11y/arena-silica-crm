@@ -18,4 +18,6 @@ Sistema comercial del banco de arena silica en Lagos de Moreno, Jalisco.
 
 ## Primer uso
 
-Abrir la app, capturar correo y contrasena, y pulsar **Crear cuenta**. Los datos estan protegidos con Row Level Security: solo usuarios autenticados leen y escriben.
+Entrar con una cuenta de administrador (correo y contrasena, o el boton de Google). Solo los perfiles con rol `admin` ven el CRM: la seguridad de la base (Row Level Security) deja todo lo comercial detras de `es_interno()`. Los clientes entran por arensil.com/pedidos y solo ven su propia cuenta.
+
+Los administradores salen de la tabla `correos_admin` al registrarse; para cambiar el rol de alguien ya registrado se edita `perfiles.rol`.

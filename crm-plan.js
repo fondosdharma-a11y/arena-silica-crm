@@ -13,7 +13,7 @@ async function cargarPlanHoy(){
   const cont = $("#plan-hoy"); if(!cont) return;
   const cuentas = Object.values(porCuenta);
   $("#plan-n").textContent = cuentas.length ? `${cuentas.length} cuentas` : "";
-  if(!cuentas.length){ cont.innerHTML = '<p class="muted" style="font-size:13px">Sin plan cargado. El agente comercial lo deja aquí de lunes a viernes a las 8:00; también puedes trabajar desde Agenda y Prospectos.</p>'; return; }
+  if(!cuentas.length){ cont.innerHTML = '<p class="muted" style="font-size:13px">Sin plan para hoy: el agente comercial está en pausa. Trabaja desde Agenda (seguimientos vencidos) y Prospectos (prioridad 1); cada llamada o WhatsApp regístrala en la ficha de la cuenta.</p>'; return; }
   cont.innerHTML = cuentas.map((c,i) => {
     const tel = (c.telefono||"").replace(/\D/g,""); const tel52 = tel.length===10 ? "52"+tel : tel;
     const cta = DB.cuentas.find(x=>x.id===c.cuenta_id);
