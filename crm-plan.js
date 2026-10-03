@@ -119,3 +119,29 @@ async function cargarSolicitudes(){
   });
 }
 $("#tabs").addEventListener("click", e => { if(e.target.closest('button[data-v="tablero"]')) cargarSolicitudes(); });
+// ============================================================
+// Visitas del sitio (analítica propia y anónima: tabla visitas_web)
+// ============================================================
+async function cargarVisitas(){
+  const cont = $("#vis-cont"); if(!cont) return;
+  const dias = Number($("#vis-dias")?.value || 7);
+  const {data:r, error} = await sb.rpc("resumen_visitas", {p_dias: dias});
+  if(error){ cont.innerHTML = `<p class="muted" style="font-size:13px">${esc(error.message)}</p>`; return; }
+  if(!r || !r.vistas){ cont.innerHTML = '<p class="muted" style="font-size:13px">Todavía no hay visitas registradas en este periodo. El contador empezó el 3 de octubre de 2026.</p>'; return; }
+  const pct = (n) => r.sesiones ? Math.round(100*n/r.sesiones) + " %" : "—";
+  const kpi = (t, n, sub) => `<div class="card pad" style="text-align:center"><div style="font-size:22px;font-weight:700">${n}</div><div style="font-size:12px">${t}</div>${sub?`<div class="muted" style="font-size:11px">${sub}</div>`:""}</div>`;
+  const lista = (xs, k) => (xs||[]).map(x => `<div class="row" style="justify-content:space-between;font-size:12.5px"><span>${esc(x[k])}</span><strong>${x.n}</strong></div>`).join("") || '<p class="muted" style="font-size:12px">—</p>';
+  cont.innerHTML = `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+      ${kpi("Visitantes", r.sesiones, (r.movil_pct ?? 0) + " % en celular")}
+      ${kpi("Páginas vistas", r.vistas)}
+      ${kpi("WhatsApp", r.whatsapp, pct(r.whatsapp))}
+      ${kpi("Portal", r.portal, pct(r.portal))}
+      ${kpi("Calculadoras", r.cotizador, pct(r.cotizador))}
+      ${kpi("Chat", r.chat, pct(r.chat))}
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <div><h4 style="font-size:12px;margin-bottom:6px">Páginas más vistas</h4>${lista(r.paginas, "ruta")}</div>
+      <div><h4 style="font-size:12px;margin-bottom:6px">De dónde llegan</h4>${lista(r.origenes, "fuente")}</div>
+    </div>`;
+}
+document.addEventListener("change", e => { if(e.target && e.target.id === "vis-dias") cargarVisitas(); });

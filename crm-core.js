@@ -109,6 +109,7 @@ async function cargarTodo(){
   pintarCotizaciones(); pintarAgenda(); prepararCotizador();
   if(typeof cargarPlanHoy === "function") cargarPlanHoy();
   if(typeof cargarSolicitudes === "function") cargarSolicitudes();
+  if(typeof cargarVisitas === "function") cargarVisitas();
 }
 
 function llenarFiltros(){
