@@ -7,8 +7,8 @@ const EMPRESA = {
   nombre: "ARENSIL",
   lugar: "Lagos de Moreno, Jalisco",
   contacto: "Juan Pablo",
-  tel: "322 310 2049",
-  wa: "523223102049"
+  tel: "33 2493 4360",
+  wa: "523324934360"
 };
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
