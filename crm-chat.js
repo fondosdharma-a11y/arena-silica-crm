@@ -60,7 +60,7 @@ async function abrirConversacion(id){
   const burbujas = (msjs || []).map(m => {
     const mio = m.rol === "asistente";
     return `<div style="max-width:84%;${mio ? "" : "margin-left:auto;"}margin-bottom:8px;padding:8px 11px;border-radius:12px;font-size:13px;white-space:pre-wrap;
-      background:${mio ? "#fff" : "#8C4A22"};color:${mio ? "inherit" : "#fff"};border:${mio ? "1px solid var(--linea,#e3ded6)" : "0"}">
+      background:${mio ? "#fff" : "#8A6418"};color:${mio ? "inherit" : "#fff"};border:${mio ? "1px solid var(--linea,#e3ded6)" : "0"}">
       ${esc(m.texto)}</div>`;
   }).join("") || '<p class="muted" style="font-size:13px">Sin mensajes.</p>';
 

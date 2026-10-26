@@ -136,9 +136,9 @@ $("#q-print").onclick = () => {
   }).join("");
   $("#printsheet").innerHTML = `
     <div style="font-family:ui-sans-serif,system-ui;padding:32px;max-width:760px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #8C4A22;padding-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #8A6418;padding-bottom:14px">
         <div style="display:flex;gap:12px;align-items:flex-start">
-          <svg width="32" height="36" viewBox="-95 -108 190 216"><path d="M0,-100 L86.6,-50 L86.6,50 L0,0 Z" fill="#E9CFA4"/><path d="M86.6,50 L0,100 L-86.6,50 L0,0 Z" fill="#8C4A22"/><path d="M-86.6,50 L-86.6,-50 L0,-100 L0,0 Z" fill="#C98A3C"/><path d="M0,-44 L38.11,-22 L38.11,22 L0,44 L-38.11,22 L-38.11,-22 Z" fill="#F4E3C8"/></svg>
+          <svg class="marca-mt" viewBox="276.8 175.2 468.2 203.0" width="70" height="30" aria-hidden="true"><defs><linearGradient id="arg" gradientUnits="userSpaceOnUse" x1="282.8" y1="0" x2="739.0" y2="0"><stop offset="0" stop-color="#A47E36"/><stop offset="1" stop-color="#C3A356"/></linearGradient></defs><path fill="url(#arg)" fill-rule="evenodd" d="M601.5 278.8 L600.8 280.8 L637.2 324.0 L639.8 324.5 L653.2 312.2 L657.0 310.5 L708.8 371.2 L737.2 371.8 L738.8 371.0 L738.2 368.5 L635.2 246.5 L632.8 246.8ZM659.2 369.5 L510.2 184.5 L506.2 181.2 L480.5 208.5 L463.5 229.0 L432.5 262.8 L357.8 349.2 L347.2 350.5 L343.8 349.8 L343.5 348.5 L352.2 337.5 L355.2 335.2 L414.0 269.2 L412.0 265.8 L390.5 249.2 L386.8 251.8 L321.5 325.0 L313.5 335.2 L310.5 337.5 L283.2 368.5 L282.8 371.0 L286.0 371.8 L407.2 371.5 L520.5 249.2 L522.2 249.2 L629.0 371.0 L633.2 372.0 L659.2 371.2Z"/></svg>
           <div><h1 style="font-size:22px;margin:0;letter-spacing:.08em">${EMPRESA.nombre}</h1>
           <p style="margin:4px 0 0;font-size:12px;color:#555">Banco de arena sílica · ${EMPRESA.lugar}<br>
           ${EMPRESA.contacto} · Tel. y WhatsApp ${EMPRESA.tel}</p></div>
@@ -156,7 +156,7 @@ $("#q-print").onclick = () => {
         Tiempo de entrega: 48 a 72 horas hábiles a partir de la confirmación.<br>
         Condiciones: contado contra entrega. Crédito sujeto a autorización.</p>
       <table style="width:100%;border-collapse:collapse;font-size:12.5px">
-        <thead><tr style="background:#F4E3C8">
+        <thead><tr style="background:#F6EBCF">
           <th style="text-align:left;padding:7px">Producto</th><th style="text-align:right;padding:7px">Cantidad</th>
           <th style="text-align:right;padding:7px">Precio</th><th style="text-align:right;padding:7px">Flete</th>
           <th style="text-align:right;padding:7px">Importe</th></tr></thead>
