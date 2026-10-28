@@ -32,13 +32,17 @@ let QLINES = [];
 // Auth
 // ============================================================
 async function boot(){
-  if(location.hash && /access_token|error/.test(location.hash)) history.replaceState({},"",location.pathname);
+  // Con Google la sesión viene en la URL (#access_token…): se lee ANTES de limpiar la dirección, o se pierde y regresa al login.
+  const vieneDeGoogle = !!(location.hash && /access_token|error/.test(location.hash));
   const {data:{session}} = await sb.auth.getSession();
+  if(vieneDeGoogle) history.replaceState({},"",location.pathname);
   if(session){ showApp(session.user); } else { $("#login").classList.remove("hide"); }
+  sb.auth.onAuthStateChange((ev, ses) => { if(ev === "SIGNED_IN" && ses && $("#app").classList.contains("hide")) showApp(ses.user); });
 }
 // Solo entran los correos dados de alta como administración (tabla correos_admin → perfiles.rol = 'admin').
 async function showApp(user){
-  const {data:perfil} = await sb.from("perfiles").select("rol,nombre,avatar_url").eq("id",user.id).single();
+  const {data:perfil, error:errPerfil} = await sb.from("perfiles").select("rol,nombre,avatar_url").eq("id",user.id).single();
+  if(errPerfil){ $("#login").classList.remove("hide"); $("#li-msg").textContent = "No se pudo leer tu perfil: " + errPerfil.message; return; }
   if(!perfil || perfil.rol !== "admin"){
     await sb.auth.signOut();
     $("#login").classList.remove("hide");
