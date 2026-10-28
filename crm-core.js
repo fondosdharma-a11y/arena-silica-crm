@@ -104,6 +104,11 @@ async function cargarTodo(){
     sb.from("v_seguimientos_pendientes").select("*")
   ]);
   DB.cuentas = cu.data||[]; DB.productos = pr.data||[]; DB.zonas = zo.data||[];
+  // Precio de lanzamiento: la vista `catalogo` trae el precio realmente cobrado (precio_lista) y el normal.
+  try{
+    const cat = await sb.from("catalogo").select("id,precio_lista,precio_normal,promo_pct");
+    (cat.data||[]).forEach(c=>{ const p = DB.productos.find(x=>x.id===c.id); if(p && Number(c.promo_pct)>0){ p.precio_normal = c.precio_normal; p.promo_pct = c.promo_pct; p.precio_lista = Number(c.precio_lista); } });
+  }catch(e){}
   DB.cotizaciones = co.data||[]; DB.agenda = ag.data||[];
   llenarFiltros(); pintarTablero(); pintarProspectos(); pintarCatalogo();
   pintarCotizaciones(); pintarAgenda(); prepararCotizador();
